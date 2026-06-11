@@ -1,0 +1,206 @@
+version: '3.8'
+
+services:
+
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.5.0
+    container_name: zookeeper
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    networks:
+      - credito-network
+
+  kafka:
+    image: confluentinc/cp-kafka:7.5.0
+    container_name: kafka
+    depends_on:
+      - zookeeper
+    ports:
+      - "9092:9092"
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+    networks:
+      - credito-network
+
+  postgres-credito:
+    image: postgres:15
+    container_name: postgres-credito
+    environment:
+      POSTGRES_DB: creditodb
+      POSTGRES_USER: credito
+      POSTGRES_PASSWORD: credito123
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U credito -d creditodb"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - credito-network
+
+  postgres-historico:
+    image: postgres:15
+    container_name: postgres-historico
+    environment:
+      POSTGRES_DB: historicodb
+      POSTGRES_USER: historico
+      POSTGRES_PASSWORD: historico123
+    ports:
+      - "5433:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U historico -d historicodb"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - credito-network
+
+  postgres-score:
+    image: postgres:15
+    container_name: postgres-score
+    environment:
+      POSTGRES_DB: scoredb
+      POSTGRES_USER: score
+      POSTGRES_PASSWORD: score123
+    ports:
+      - "5434:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U score -d scoredb"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - credito-network
+
+  postgres-llm:
+    image: postgres:15
+    container_name: postgres-llm
+    environment:
+      POSTGRES_DB: llmdb
+      POSTGRES_USER: llm
+      POSTGRES_PASSWORD: llm123
+    ports:
+      - "5435:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U llm -d llmdb"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - credito-network
+
+  postgres-notificacao:
+    image: postgres:15
+    container_name: postgres-notificacao
+    environment:
+      POSTGRES_DB: notificacaodb
+      POSTGRES_USER: notificacao
+      POSTGRES_PASSWORD: notificacao123
+    ports:
+      - "5436:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U notificacao -d notificacaodb"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - credito-network
+
+  credito-service:
+    build: ./credito-service
+    container_name: credito-service
+    ports:
+      - "8080:8080"
+    depends_on:
+      postgres-credito:
+        condition: service_healthy
+      kafka:
+        condition: service_started
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres-credito:5432/creditodb
+      SPRING_DATASOURCE_USERNAME: credito
+      SPRING_DATASOURCE_PASSWORD: credito123
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+    networks:
+      - credito-network
+
+  historico-service:
+    build: ./historico-service
+    container_name: historico-service
+    ports:
+      - "8081:8081"
+    depends_on:
+      postgres-historico:
+        condition: service_healthy
+      kafka:
+        condition: service_started
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres-historico:5432/historicodb
+      SPRING_DATASOURCE_USERNAME: historico
+      SPRING_DATASOURCE_PASSWORD: historico123
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+    networks:
+      - credito-network
+
+  score-service:
+    build: ./score-service
+    container_name: score-service
+    ports:
+      - "8082:8082"
+    depends_on:
+      postgres-score:
+        condition: service_healthy
+      kafka:
+        condition: service_started
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres-score:5432/scoredb
+      SPRING_DATASOURCE_USERNAME: score
+      SPRING_DATASOURCE_PASSWORD: score123
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+    networks:
+      - credito-network
+
+  llm-service:
+    build: ./llm-service
+    container_name: llm-service
+    ports:
+      - "8083:8083"
+    depends_on:
+      postgres-llm:
+        condition: service_healthy
+      kafka:
+        condition: service_started
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres-llm:5432/llmdb
+      SPRING_DATASOURCE_USERNAME: llm
+      SPRING_DATASOURCE_PASSWORD: llm123
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+    networks:
+      - credito-network
+
+  notificacao-service:
+    build: ./notificacao-service
+    container_name: notificacao-service
+    ports:
+      - "8084:8084"
+    depends_on:
+      postgres-notificacao:
+        condition: service_healthy
+      kafka:
+        condition: service_started
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres-notificacao:5432/notificacaodb
+      SPRING_DATASOURCE_USERNAME: notificacao
+      SPRING_DATASOURCE_PASSWORD: notificacao123
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+    networks:
+      - credito-network
+
+networks:
+  credito-network:
+    driver: bridge
