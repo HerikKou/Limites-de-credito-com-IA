@@ -197,7 +197,3 @@ Todas as configurações sensíveis ficam no `application.properties` de cada se
 - Configurações de e-mail SMTP
 
 ---
-
-
-#   L i m i t e s - d e - c r e d i t o - c o m - I A  
- 
