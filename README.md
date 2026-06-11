@@ -155,15 +155,6 @@ credito-ia/
 └── docker-compose.yml
 ```
 
----
-
-## Variáveis de Ambiente
-
-Todas as configurações sensíveis ficam no `application.properties` de cada serviço:
-
-- Conexão com banco de dados
-- Bootstrap servers do Kafka
-- Chave da API Claude
 
 
 ---
