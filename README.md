@@ -106,7 +106,6 @@ O **Java Mail Sender** permite envio de e-mail via SMTP sem dependência de serv
 | **Idempotência** | Consumidores verificam se o evento já foi processado antes de executar |
 | **Retry com Backoff** | Tentativas automáticas em caso de falha no consumo do evento |
 | **Dead Letter Queue (DLQ)** | Eventos que falham após todas as tentativas são enviados para fila de erro |
-| **State Machine** | Cada entidade possui estados bem definidos com transições controladas |
 | **Cache** | Consultas GET com cache em memória para reduzir carga no banco |
 
 ---
