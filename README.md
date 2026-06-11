@@ -12,37 +12,8 @@ O sistema coleta dados de crédito, gera um histórico fictício de compras, cal
 
 O sistema é composto por 5 microsserviços independentes que se comunicam de forma assíncrona via Apache Kafka:
 
-```
-Credito Service
-     │
-     │ publica: credito-criado
-     ▼
-   Kafka
-     │
-     ├──────────────────────────┐
-     ▼                          ▼
-Historico Service          Score Service
-     │                          │
-     │ publica: historico-criado│ publica: score-atualizado
-     └──────────┬───────────────┘
-                ▼
-              Kafka
-                │
-                ▼
-           LLM Service
-                │
-                │ publica: cenario-informado
-                ▼
-              Kafka
-                │
-                ▼
-        Notificacao Service
-                │
-                ▼
-            E-mail ao usuário
-```
+<img width="1007" height="783" alt="image" src="https://github.com/user-attachments/assets/8d29de1b-82d3-4218-8cc7-9dc357ae7690" />
 
-Cada serviço possui seu próprio banco de dados PostgreSQL isolado, seguindo o padrão **Database per Service**.
 
 ---
 
@@ -194,6 +165,9 @@ Todas as configurações sensíveis ficam no `application.properties` de cada se
 - Conexão com banco de dados
 - Bootstrap servers do Kafka
 - Chave da API Claude
-- Configurações de e-mail SMTP
+
 
 ---
+Autor
+---
+Herik Kato
