@@ -14,11 +14,5 @@ public class IdempotenciaService {
     }
 
     public boolean CreditoJaProcessado(Long idCredito) {
-        boolean existe = historicoRepository.existsByIdCredito(idCredito);
-       
-        if(existe) {
-            return true;
-        } 
-        return false;
-    }
+       return historicoRepository.existsByIdCredito(idCredito);
 }
