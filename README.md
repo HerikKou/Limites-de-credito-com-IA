@@ -23,7 +23,7 @@ O sistema é composto por 5 microsserviços independentes que se comunicam de fo
 Responsável pelo cadastro das informações financeiras do usuário: salário, limite de crédito total, limite disponível, quantidade de atrasos e quantidade de consultas ao CPF. Disponibiliza consulta via GET com cache em memória. Ao cadastrar, publica um evento no Kafka com os dados necessários para os demais serviços.
 
 ### Historico Service
-Consome o evento do Credito Service, registra o `idCredito` e aguarda o preenchimento do histórico fictício de compras via endpoint REST. Calcula o total gasto e publica o histórico processado para o Score Service. Disponibiliza consulta via GET com cache em memória.
+Consome o evento do Credito Service e cria o registro base de histórico associado ao idCredito. O histórico é enriquecido com transações de compra contendo informações como valor e estabelecimento. A partir dessas transações, calcula o total gasto e publica o histórico consolidado para o Score Service. Disponibiliza consulta via GET com cache em memória.
 
 ### Score Service
 Consome eventos do Credito Service e do Historico Service. Calcula o score de risco com base em quatro critérios independentes: uso do limite de crédito, tempo de histórico, quantidade de atrasos e quantidade de consultas ao CPF. Cada critério possui seu próprio método de cálculo, orquestrados por um método principal. Publica o resultado para o LLM Service.
