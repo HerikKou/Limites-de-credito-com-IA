@@ -17,21 +17,17 @@ public PromptService(ProducerService producerService) {
 }
 
 
-public String gerarPrompt(ScoreAtualizadoEventoDTO evento){
-PromptTemplate promptTemplate = PromptTemplate.builder()
-    .template("""
-            Você é um especialista em análise de crédito.
+public String gerarPrompt(ScoreAtualizadoEventoDTO evento) {
+    PromptTemplate promptTemplate = PromptTemplate.builder()
+        .template("""
+                Você é um especialista em análise de crédito.
+                
+                Status do score: {status}
+                Explique em até 3 frases a situação financeira atual do cliente.
+                """)
+        .build();
 
-            
-            Status do score: <status>
-
-            Explique em até 3 frases a situação financeira atual do cliente.
-            """)
-            
-    .build();
-
-return promptTemplate.render(Map.of("score", evento.getStatus()));
-
+    return promptTemplate.render(Map.of("status", evento.getStatus()));
 }
 
 
