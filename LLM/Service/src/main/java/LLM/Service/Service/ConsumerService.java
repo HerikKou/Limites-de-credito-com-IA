@@ -29,9 +29,12 @@ public ConsumerService(LlmRepository repository, Idempotencia idempotencia, Prom
 }
 @Retryable(maxAttempts = 5, backoff = @Backoff(delay = 3000))
 @KafkaListener(topics = "score-service", groupId = "llm-service-group-v1")
-public void ConsumirMensagem(ScoreAtualizadoEventoDTO score){String cenario = prompt.gerarPrompt(score);
-    log.info("Score recebido:{}"+score.getIdScore());
-   idempotencia.ScoreJaProcessado(score.getIdScore());
+public void ConsumirMensagem(ScoreAtualizadoEventoDTO score){
+    idempotencia.ScoreJaProcessado(score.getIdScore());
+    
+    String cenario = prompt.gerarPrompt(score);
+    log.info("Score recebido:{}",score.getIdScore());
+   
     Llm llm = new Llm();
     llm.setIdScore(score.getIdScore());
     llm.setCreditoId(score.getCreditoId());
