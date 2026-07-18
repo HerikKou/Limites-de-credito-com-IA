@@ -1,4 +1,4 @@
-# Análise de Credito Inteligente com IA 
+# Análise Inteligente de Credito com IA 
 
 ## Visão Geral
 
